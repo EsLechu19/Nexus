@@ -13,7 +13,7 @@ python-multipart>=0.0.9
 # Auth / Seguridad
 PyJWT>=2.9.0
 passlib[bcrypt]>=1.7.4
-bcrypt>=4.1.0
+bcrypt>=4.3.0
 
 # Base de datos PostgreSQL (prod); SQLite en dev no requiere driver extra
 psycopg2-binary>=2.9.9
