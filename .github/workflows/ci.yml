@@ -42,7 +42,7 @@ jobs:
         run: alembic upgrade head
 
       - name: Pytest
-        run: pytest -v --cov=app --cov-report=term-missing
+        run: PYTHONPATH=. pytest -v --cov=app --cov-report=term-missing
 
   frontend:
     name: Frontend — vitest / build
