@@ -4,6 +4,8 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 
+import hashlib
+
 import jwt  # type: ignore[import-untyped]
 from passlib.context import CryptContext  # type: ignore[import-untyped]
 
@@ -45,22 +47,15 @@ def validar_email_formato(email: str) -> bool:
 
 
 def _truncar_bcrypt(password: str) -> str:
-    """Trunca a 72 bytes para bcrypt 4.x (ValueError si >72).
+    """Pre-hash a SHA256 si >72 bytes para bcrypt 4.x (ValueError si >72).
 
     bcrypt solo usa 72 bytes; passlib<1.7 truncaba silencioso, bcrypt 4.x levanta.
-    Se trunca a nivel bytes para no romper utf-8.
+    Se usa sha256 hexdigest (64 chars) para long passwords, compatible con verify.
     """
     b = password.encode("utf-8")
     if len(b) > 72:
-        b = b[:72]
-        # evita cortar carácter utf-8 a la mitad
-        while True:
-            try:
-                return b.decode("utf-8")
-            except UnicodeDecodeError:
-                b = b[:-1]
-                if not b:
-                    return ""
+        # sha256 hexdigest es 64 chars ASCII, siempre <72
+        return hashlib.sha256(b).hexdigest()
     return password
 
 
