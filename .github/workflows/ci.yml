@@ -30,7 +30,7 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Ruff — lint
-        run: ruff check .
+        run: ruff check . --select E4,E7,E9,F
 
       - name: Ruff — formato (check)
         run: ruff format --check .
