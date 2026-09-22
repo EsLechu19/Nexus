@@ -1,9 +1,10 @@
 """Tests de T16 — Unitarios de service con mock session (RF-1..RF-5)."""
 
-import pytest
 from unittest.mock import MagicMock
-from sqlalchemy.exc import IntegrityError
+
+import pytest
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 
 from app.schemas.producto import ProductoCreate, ProductoUpdate
 

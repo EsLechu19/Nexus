@@ -119,7 +119,7 @@ def test_validar_formato_precio_limites():
             {
                 "producto_codigo": "PROD-001",
                 "cantidad": 1,
-                "precio_unitario": Decimal("10"),
+                "precio_unitario": Decimal(10),
             }
         ],
         {"nombre": "Ana"},

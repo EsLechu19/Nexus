@@ -70,6 +70,7 @@ def test_baja_proveedor_con_contacto_permite():
 def test_baja_proveedor_ya_inactivo_400():
     """RF-5: ya inactivo -> 400, no idempotente."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import baja_proveedor
 
     db = _make_session()
@@ -84,6 +85,7 @@ def test_baja_proveedor_ya_inactivo_400():
 def test_baja_proveedor_no_encontrado_404():
     """RF-5: código inexistente -> 404."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import baja_proveedor
 
     db = _make_session()
@@ -106,12 +108,12 @@ def test_baja_proveedor_normaliza_codigo_path():
 
 def test_baja_proveedor_no_borra_y_excluido_de_listado():
     """RF-5 y RNF-1: no borra, excluido de listado pero visible en detalle."""
+    from app.models.proveedor import Proveedor
     from app.services.proveedor_service import (
         baja_proveedor,
         listar_activos,
         obtener_por_codigo,
     )
-    from app.models.proveedor import Proveedor
 
     db = _make_session()
     _crear(db, codigo="BAJA-005", nombre="Visible")

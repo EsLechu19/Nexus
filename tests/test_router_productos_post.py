@@ -1,16 +1,16 @@
 """Tests de T09 — Router POST /api/v1/productos (RF-1)."""
 
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
-from fastapi import FastAPI
+from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
 # Importar modelos para registrar en Base
 from app.models.producto import Producto  # noqa: F401
-from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
 
 def _make_app_and_client():

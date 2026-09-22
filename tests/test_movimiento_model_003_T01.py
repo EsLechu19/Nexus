@@ -19,12 +19,13 @@ def test_T01_modelo_extendido_existe():
 
 
 def test_T01_columnas_tipos_y_nulabilidad():
-    from sqlalchemy import Integer, String, DateTime
+    from sqlalchemy import DateTime, Integer, String
+
+    from app.models.movimiento_inventario import MovimientoInventario
+    from app.models.producto import Producto  # noqa: F401
 
     # Importar para registrar tablas en metadata
     from app.models.proveedor import Proveedor  # noqa: F401
-    from app.models.producto import Producto  # noqa: F401
-    from app.models.movimiento_inventario import MovimientoInventario
 
     cols = {c.name: c for c in MovimientoInventario.__table__.columns}
     assert (

@@ -52,10 +52,12 @@ def test_validar_token_ok_y_firma_invalida(monkeypatch):
 def test_validar_token_expirado(monkeypatch):
     """T04: validar_token con exp pasado debe fallar."""
     monkeypatch.setenv("JWT_SECRET_KEY", "test-secret-jwt-T04-32chars-minimo!!")
-    from app.services.auth_service import validar_token
-    import jwt
     import time
+
+    import jwt
     import pytest
+
+    from app.services.auth_service import validar_token
 
     # crea token con exp en pasado (-10s)
     payload_pasado = {"sub": "admin@tienda.com", "exp": int(time.time()) - 10}

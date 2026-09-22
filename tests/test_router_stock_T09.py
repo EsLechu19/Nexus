@@ -12,8 +12,8 @@ from app.schemas.proveedor import ProveedorCreate
 
 
 def _make_client_with_db():
-    from app.routers.stock import router as stock_router
     from app.routers.movimientos import router as mov_router
+    from app.routers.stock import router as stock_router
 
     engine = create_engine(
         "sqlite:///:memory:",

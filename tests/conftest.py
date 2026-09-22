@@ -7,10 +7,12 @@ import pytest
 
 # Importar todos los modelos para que Base.metadata conozca todas las tablas
 # antes de cualquier Base.metadata.create_all en tests aislados
-from app.models import movimiento_inventario  # noqa: F401
-from app.models import producto  # noqa: F401
-from app.models import proveedor  # noqa: F401
-from app.models import usuario  # noqa: F401
+from app.models import (
+    movimiento_inventario,  # noqa: F401
+    producto,  # noqa: F401
+    proveedor,  # noqa: F401
+    usuario,  # noqa: F401
+)
 from app.services.auth_service import crear_token
 
 

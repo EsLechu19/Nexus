@@ -11,9 +11,9 @@ from app.schemas.proveedor import ProveedorCreate
 
 
 def _make_session():
+    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
     from app.models.producto import Producto  # noqa: F401
     from app.models.proveedor import Proveedor  # noqa: F401
-    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -52,9 +52,9 @@ def test_listar_historial_vacio():
 def test_listar_historial_orden_y_filtros():
     """RF-3: orden fecha DESC, filtros producto y tipo."""
     from app.services.movimiento_service import (
+        listar_historial,
         registrar_entrada,
         registrar_salida,
-        listar_historial,
     )
 
     db = _make_session()
@@ -124,6 +124,7 @@ def test_listar_historial_orden_y_filtros():
 def test_listar_historial_producto_no_existe_404():
     """RF-3: filtro producto inexistente -> 404."""
     from fastapi import HTTPException
+
     from app.services.movimiento_service import listar_historial
 
     db = _make_session()
@@ -136,6 +137,7 @@ def test_listar_historial_producto_no_existe_404():
 def test_listar_historial_tipo_invalido_422_schema():
     """RF-3: tipo inválido -> 422 en schema (no en service)."""
     from pydantic import ValidationError
+
     from app.schemas.movimiento import HistorialQuery
 
     with pytest.raises(ValidationError):
@@ -157,9 +159,9 @@ def test_calcular_stock_sin_movimientos():
 def test_calcular_stock_con_movimientos():
     """RF-4: inicial 5 + entradas 10 - salidas 3 = 12."""
     from app.services.movimiento_service import (
+        calcular_stock,
         registrar_entrada,
         registrar_salida,
-        calcular_stock,
     )
 
     db = _make_session()
@@ -181,8 +183,8 @@ def test_calcular_stock_con_movimientos():
 
 def test_calcular_stock_excluye_entrada_inicial():
     """RF-4: entrada_inicial no se cuenta como entrada."""
-    from app.services.movimiento_service import calcular_stock
     from app.models.movimiento_inventario import MovimientoInventario
+    from app.services.movimiento_service import calcular_stock
 
     db = _make_session()
     prod = _crear_producto(db, codigo="PROD-005", stock_inicial=5)
@@ -227,6 +229,7 @@ def test_listar_stock_global_solo_activos():
 
 def test_calcular_stock_no_existe_404():
     from fastapi import HTTPException
+
     from app.services.movimiento_service import calcular_stock
 
     db = _make_session()

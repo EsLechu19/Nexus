@@ -119,12 +119,12 @@ def test_venta_create_precio_decimal_2_decimales():
             {
                 "producto_codigo": "PROD-002",
                 "cantidad": 1,
-                "precio_unitario": Decimal("10"),
+                "precio_unitario": Decimal(10),
             },
         ],
     )
     assert v.items[0].precio_unitario == Decimal("10.5")
-    assert v.items[1].precio_unitario == Decimal("10")
+    assert v.items[1].precio_unitario == Decimal(10)
 
 
 def test_venta_create_sku_duplicado_tras_normalizacion():

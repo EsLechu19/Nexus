@@ -9,8 +9,8 @@ from app.schemas.producto import ProductoCreate
 
 
 def _make_session():
-    from app.models.producto import Producto  # noqa: F401
     from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
+    from app.models.producto import Producto  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -106,6 +106,7 @@ def test_obtener_por_sku_normalizado():
 def test_obtener_por_sku_no_existe_404():
     """RF-3: SKU inexistente -> 404."""
     from fastapi import HTTPException
+
     from app.services.producto_service import obtener_por_sku
 
     db = _make_session()

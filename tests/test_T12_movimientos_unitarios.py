@@ -12,9 +12,9 @@ from app.schemas.proveedor import ProveedorCreate
 
 
 def _make_session():
+    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
     from app.models.producto import Producto  # noqa: F401
     from app.models.proveedor import Proveedor  # noqa: F401
-    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -70,8 +70,9 @@ def test_T12_entrada_con_sin_motivo_y_proveedor_normalizado():
 
 
 def test_T12_salida_stock_suficiente_e_insuficiente():
-    from app.services.movimiento_service import registrar_entrada, registrar_salida
     from fastapi import HTTPException
+
+    from app.services.movimiento_service import registrar_entrada, registrar_salida
 
     SessionLocal = _make_session()
     _crear_producto_proveedor(SessionLocal, prod_codigo="PROD-002", stock_inicial=10)
@@ -98,6 +99,7 @@ def test_T12_salida_stock_suficiente_e_insuficiente():
 
 def test_T12_cantidad_0_negativa_decimal_mayor1M():
     from pydantic import ValidationError
+
     from app.schemas.movimiento import MovimientoCreateEntrada
 
     for invalido in [0, -1, 1000001, 1.5, "10"]:
@@ -111,6 +113,7 @@ def test_T12_cantidad_0_negativa_decimal_mayor1M():
 
 def test_T12_motivo_vacio_1_201_salto():
     from pydantic import ValidationError
+
     from app.schemas.movimiento import MovimientoCreateEntrada
 
     for invalido in ["", "A", "A" * 201, "a\nb"]:
@@ -125,6 +128,7 @@ def test_T12_motivo_vacio_1_201_salto():
 
 def test_T12_producto_proveedor_no_existe_inactivo():
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_entrada
 
     SessionLocal = _make_session()
@@ -189,6 +193,7 @@ def test_T12_producto_proveedor_no_existe_inactivo():
 
 def test_T12_proveedor_enviado_en_salida_422():
     from pydantic import ValidationError
+
     from app.schemas.movimiento import MovimientoCreateSalida
 
     with pytest.raises(ValidationError):
@@ -199,9 +204,9 @@ def test_T12_proveedor_enviado_en_salida_422():
 
 def test_T12_historial_filtrado_y_orden():
     from app.services.movimiento_service import (
+        listar_historial,
         registrar_entrada,
         registrar_salida,
-        listar_historial,
     )
 
     SessionLocal = _make_session()
@@ -276,9 +281,9 @@ def test_T12_historial_filtrado_y_orden():
 
 def test_T12_stock_recalculado():
     from app.services.movimiento_service import (
+        calcular_stock,
         registrar_entrada,
         registrar_salida,
-        calcular_stock,
     )
 
     SessionLocal = _make_session()
@@ -300,6 +305,7 @@ def test_T12_stock_recalculado():
 def test_T12_concurrencia_dos_salidas_exceden_stock():
     """Dos salidas secuenciales que exceden stock: una 201 otra 400 (simula concurrencia con FOR UPDATE)."""
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_salida
 
     SessionLocal = _make_session()

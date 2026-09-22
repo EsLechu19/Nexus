@@ -1,11 +1,12 @@
 """Tests de T14 — Unitarios de service Proveedores (mock + sqlite) RF-1..RF-5."""
 
-import pytest
 from unittest.mock import MagicMock
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import IntegrityError
+
+import pytest
 from fastapi import HTTPException
+from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
 
 from app.database import Base
 from app.schemas.proveedor import ProveedorCreate, ProveedorUpdate
@@ -75,7 +76,7 @@ def test_T14_email_telefono_direccion_null_ausente_vacio():
 
 def test_T14_edicion_null_borra_vs_vacio_422():
     """RF-4: null borra, '' -> 422."""
-    from app.services.proveedor_service import crear_proveedor, actualizar_proveedor
+    from app.services.proveedor_service import actualizar_proveedor, crear_proveedor
 
     db = _make_session()
     crear_proveedor(
@@ -119,7 +120,7 @@ def test_T14_edicion_inactivo_400():
 
 
 def test_T14_baja_idempotencia_400():
-    from app.services.proveedor_service import crear_proveedor, baja_proveedor
+    from app.services.proveedor_service import baja_proveedor, crear_proveedor
 
     db = _make_session()
     crear_proveedor(db, ProveedorCreate(codigo="T14-010", nombre="Test"))

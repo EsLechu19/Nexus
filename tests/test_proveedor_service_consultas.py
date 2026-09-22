@@ -115,6 +115,7 @@ def test_obtener_por_codigo_normalizado():
 def test_obtener_por_codigo_no_existe_404():
     """RF-3: no existe -> 404."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import obtener_por_codigo
 
     db = _make_session()

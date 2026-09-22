@@ -4,7 +4,6 @@ from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-
 CategoriaLiteral = Literal["videojuego", "consola", "accesorio"]
 EstadoLiteral = Literal["activo", "inactivo"]
 

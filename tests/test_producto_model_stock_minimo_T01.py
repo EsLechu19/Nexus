@@ -4,6 +4,7 @@
 def test_modelo_producto_tiene_stock_minimo():
     """T01: Producto.stock_minimo existe con tipo y check."""
     from sqlalchemy import Integer
+
     from app.models.producto import Producto
 
     cols = {c.name: c for c in Producto.__table__.columns}

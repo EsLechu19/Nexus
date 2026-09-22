@@ -8,8 +8,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
-from app.models.producto import Producto  # noqa: F401
 from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
+from app.models.producto import Producto  # noqa: F401
 from app.models.proveedor import Proveedor  # noqa: F401
 from app.models.usuario import Usuario  # noqa: F401
 
@@ -128,8 +128,9 @@ def test_protegidos_con_token_invalido_401(monkeypatch):
         )
 
     # expirado
-    import jwt
     import time
+
+    import jwt
 
     payload = {"sub": "admin@tienda.com", "exp": int(time.time()) - 10}
     expirado = jwt.encode(

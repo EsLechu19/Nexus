@@ -9,8 +9,8 @@ from app.schemas.producto import ProductoCreate, ProductoUpdate
 
 
 def _make_session():
-    from app.models.producto import Producto  # noqa: F401
     from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
+    from app.models.producto import Producto  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -86,6 +86,7 @@ def test_actualizar_producto_sku_mismo_valor_se_ignora():
 def test_actualizar_producto_sku_distinto_rechaza_400():
     """RF-4: sku distinto -> 400 inmutable."""
     from fastapi import HTTPException
+
     from app.services.producto_service import actualizar_producto
 
     db = _make_session()
@@ -101,6 +102,7 @@ def test_actualizar_producto_sku_distinto_rechaza_400():
 def test_actualizar_producto_inactivo_rechaza_400():
     """RF-4: inactivo no editable -> 400."""
     from fastapi import HTTPException
+
     from app.services.producto_service import actualizar_producto
 
     db = _make_session()
@@ -116,6 +118,7 @@ def test_actualizar_producto_inactivo_rechaza_400():
 def test_actualizar_producto_no_encontrado_404():
     """RF-4: SKU inexistente -> 404."""
     from fastapi import HTTPException
+
     from app.services.producto_service import actualizar_producto
 
     db = _make_session()

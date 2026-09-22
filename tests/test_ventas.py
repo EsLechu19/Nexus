@@ -5,13 +5,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.database import Base, get_db
 import app.models.movimiento_inventario  # noqa: F401
 import app.models.producto  # noqa: F401
 import app.models.proveedor  # noqa: F401
 import app.models.usuario  # noqa: F401
 import app.models.venta  # noqa: F401
 import app.models.venta_item  # noqa: F401
+from app.database import Base, get_db
 from app.models.producto import Producto
 
 

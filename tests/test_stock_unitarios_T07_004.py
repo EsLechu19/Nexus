@@ -5,15 +5,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.database import Base
+from app.schemas.movimiento import MovimientoCreateEntrada, MovimientoCreateSalida
 from app.schemas.producto import ProductoCreate
 from app.schemas.proveedor import ProveedorCreate
-from app.schemas.movimiento import MovimientoCreateEntrada, MovimientoCreateSalida
 
 
 def _make_session():
+    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
     from app.models.producto import Producto  # noqa: F401
     from app.models.proveedor import Proveedor  # noqa: F401
-    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -90,8 +90,8 @@ def test_stock_cero_con_minimo_true():
 
 
 def test_stock_5_mas_10_menos_3_igual_12():
-    from app.services.stock_service import calcular_stock
     from app.services.movimiento_service import registrar_entrada, registrar_salida
+    from app.services.stock_service import calcular_stock
 
     SessionLocal = _make_session()
     db = SessionLocal()
@@ -117,6 +117,7 @@ def test_stock_5_mas_10_menos_3_igual_12():
 
 def test_stock_codigo_normalizado_y_inactivo_404():
     from fastapi import HTTPException
+
     from app.services.stock_service import calcular_stock
 
     SessionLocal = _make_session()
@@ -141,6 +142,7 @@ def test_stock_codigo_normalizado_y_inactivo_404():
 def test_stock_minimo_null_ausente_vacio():
     """ProductoCreate stock_minimo null/ausente ->0, '' ->422, -5/>1M ->422."""
     from pydantic import ValidationError
+
     from app.schemas.producto import ProductoCreate
 
     obj = ProductoCreate(

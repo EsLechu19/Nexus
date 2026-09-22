@@ -7,8 +7,8 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
 from app.main import app
-from app.models.producto import Producto  # noqa: F401
 from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
+from app.models.producto import Producto  # noqa: F401
 
 
 def _make_client():

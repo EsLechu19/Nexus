@@ -3,8 +3,13 @@ line-length = 88
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F"]
+select = ["E4", "E7", "E9", "F", "I", "RUF", "FURB"]
 ignore = []
+# F401 en tests/alembic son imports por efecto (registrar Base.metadata) — se marcan noqa pero RUF100 los veía como unused sin F activo
+[tool.ruff.lint.per-file-ignores]
+"alembic/env.py" = ["F401", "E402"]
+"tests/**" = ["F401", "RUF100", "RUF015", "S101", "PLR2004", "ANN", "E501", "RUF021"]
+"alembic/versions/**" = ["E501"]
 
 [tool.ruff.format]
 quote-style = "double"

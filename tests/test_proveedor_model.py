@@ -11,6 +11,7 @@ def test_modelo_proveedor_existe_y_tabla():
 def test_modelo_proveedor_columnas_y_tipos():
     """T01: columnas id, codigo, nombre, email, telefono, direccion, estado, created_at, updated_at."""
     from sqlalchemy import Integer, String
+
     from app.models.proveedor import Proveedor
 
     cols = {c.name: c for c in Proveedor.__table__.columns}

@@ -65,6 +65,7 @@ def test_crear_proveedor_normaliza_codigo_y_email():
 def test_crear_proveedor_rechaza_duplicado_exacto_409():
     """RF-1: código duplicado -> 409."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import crear_proveedor
 
     db = _make_session()
@@ -78,6 +79,7 @@ def test_crear_proveedor_rechaza_duplicado_exacto_409():
 def test_crear_proveedor_rechaza_duplicado_normalizado_409():
     """RF-1: duplicado normalizado -> 409."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import crear_proveedor
 
     db = _make_session()
@@ -91,6 +93,7 @@ def test_crear_proveedor_rechaza_duplicado_normalizado_409():
 def test_crear_proveedor_rechaza_duplicado_inactivo_409():
     """RNF-3: código de inactivo no reutilizable -> 409."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import crear_proveedor
 
     db = _make_session()
@@ -110,8 +113,10 @@ def test_crear_proveedor_rechaza_duplicado_inactivo_409():
 def test_crear_proveedor_captura_integrity_error_409():
     """RF-1: carrera IntegrityError -> 409."""
     from unittest.mock import MagicMock
-    from sqlalchemy.exc import IntegrityError
+
     from fastapi import HTTPException
+    from sqlalchemy.exc import IntegrityError
+
     from app.services.proveedor_service import crear_proveedor
 
     mock_db = MagicMock()

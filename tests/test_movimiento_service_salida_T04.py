@@ -11,9 +11,9 @@ from app.schemas.proveedor import ProveedorCreate
 
 
 def _make_session():
+    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
     from app.models.producto import Producto  # noqa: F401
     from app.models.proveedor import Proveedor  # noqa: F401
-    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -43,9 +43,9 @@ def _crear_proveedor(db, codigo="PROV-001"):
 def test_registrar_salida_valida_decrementa_stock():
     """RF-2: salida válida decrementa stock."""
     from app.services.movimiento_service import (
+        calcular_stock,
         registrar_entrada,
         registrar_salida,
-        calcular_stock,
     )
 
     db = _make_session()
@@ -71,8 +71,7 @@ def test_registrar_salida_valida_decrementa_stock():
 
 def test_registrar_salida_exacta_deja_cero():
     """RF-2: salida exacta deja 0."""
-    from app.services.movimiento_service import registrar_salida
-    from app.services.movimiento_service import calcular_stock
+    from app.services.movimiento_service import calcular_stock, registrar_salida
 
     db = _make_session()
     _crear_producto(db, codigo="PROD-002", stock_inicial=5)
@@ -87,6 +86,7 @@ def test_registrar_salida_exacta_deja_cero():
 def test_registrar_salida_stock_insuficiente_400():
     """RF-2: stock insuficiente -> 400 sin movimiento."""
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_salida
 
     db = _make_session()
@@ -111,6 +111,7 @@ def test_registrar_salida_stock_insuficiente_400():
 
 def test_registrar_salida_producto_no_existe_404():
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_salida
 
     db = _make_session()
@@ -122,6 +123,7 @@ def test_registrar_salida_producto_no_existe_404():
 
 def test_registrar_salida_producto_inactivo_400():
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_salida
 
     db = _make_session()
@@ -139,6 +141,7 @@ def test_registrar_salida_producto_inactivo_400():
 def test_registrar_salida_proveedor_enviado_422_schema():
     """RF-2: salida no permite proveedor -> 422 en schema."""
     from pydantic import ValidationError
+
     from app.schemas.movimiento import MovimientoCreateSalida
 
     with pytest.raises(ValidationError):
@@ -149,6 +152,7 @@ def test_registrar_salida_proveedor_enviado_422_schema():
 
 def test_registrar_salida_cantidad_invalida_422_schema():
     from pydantic import ValidationError
+
     from app.schemas.movimiento import MovimientoCreateSalida
 
     for invalido in [0, -1, 1000001, 1.5, "10"]:
@@ -158,6 +162,7 @@ def test_registrar_salida_cantidad_invalida_422_schema():
 
 def test_registrar_salida_motivo_invalido_422_schema():
     from pydantic import ValidationError
+
     from app.schemas.movimiento import MovimientoCreateSalida
 
     for invalido in ["", "A", "A" * 201, "a\nb"]:

@@ -62,6 +62,7 @@ def test_T18_alembic_upgrade_head():
 def test_T18_docs_lista_5_endpoints():
     """T14/RF-1..RF-5: GET /docs y /openapi.json listan 5 endpoints."""
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)

@@ -54,6 +54,7 @@ def test_T16_alembic_upgrade_head():
 
 def test_T16_docs_10_endpoints():
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)
@@ -77,8 +78,9 @@ def test_T16_docs_10_endpoints():
 
 def test_T16_proveedor_id_expuesto_para_003():
     """Plan §2.3 y §6: proveedor_id Integer para 003."""
-    from app.models.proveedor import Proveedor
     from sqlalchemy import Integer
+
+    from app.models.proveedor import Proveedor
 
     assert isinstance(Proveedor.__table__.c.id.type, Integer)
     # Verificar que el modelo tiene id PK Integer

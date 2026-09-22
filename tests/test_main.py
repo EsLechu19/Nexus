@@ -20,6 +20,7 @@ def test_main_py_existe_e_incluye_router(auth_headers):
 def test_app_expone_5_endpoints_en_openapi(auth_headers):
     """T14: GET /openapi.json lista los 5 endpoints bajo /api/v1/productos."""
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)
@@ -40,6 +41,7 @@ def test_app_expone_5_endpoints_en_openapi(auth_headers):
 def test_docs_responde_200(auth_headers):
     """T14: GET /docs lista los 5 endpoints (Swagger)."""
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)

@@ -6,10 +6,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
+from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
 # Importar modelos para registrar en Base
 from app.models.producto import Producto  # noqa: F401
-from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 from app.models.proveedor import Proveedor  # noqa: F401
 from app.models.usuario import Usuario  # noqa: F401
 
@@ -17,9 +17,10 @@ from app.models.usuario import Usuario  # noqa: F401
 def _make_client_with_auth():
     """Crea app de test con DB en memoria y router de auth + productos para verificar token usable."""
     # Importar dentro para que tome el último estado de auth_service
+    from fastapi import FastAPI
+
     from app.routers.auth import router as auth_router
     from app.routers.productos import router as productos_router
-    from fastapi import FastAPI
 
     engine = create_engine(
         "sqlite:///:memory:",

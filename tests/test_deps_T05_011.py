@@ -10,8 +10,8 @@ from fastapi import HTTPException
 def test_get_current_user_valido(monkeypatch):
     """T05: get_current_user con Bearer válido retorna sub."""
     monkeypatch.setenv("JWT_SECRET_KEY", "test-secret-deps-T05-32chars!!")
-    from app.services.deps import get_current_user
     from app.services.auth_service import crear_token
+    from app.services.deps import get_current_user
 
     token = crear_token("admin@tienda.com")
     email = get_current_user(authorization=f"Bearer {token}")

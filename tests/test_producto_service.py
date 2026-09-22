@@ -11,8 +11,8 @@ from app.schemas.producto import ProductoCreate
 def _make_session():
     """Crea DB en memoria con tablas de catálogo."""
     # Importar modelos para registrar en Base.metadata
-    from app.models.producto import Producto  # noqa: F401
     from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
+    from app.models.producto import Producto  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -42,8 +42,8 @@ def test_crear_producto_valido_sin_stock_no_genera_movimiento():
 
 def test_crear_producto_valido_con_stock_genera_traza():
     """RF-1: alta con stock >0 genera movimiento entrada_inicial."""
-    from app.services.producto_service import crear_producto
     from app.models.movimiento_inventario import MovimientoInventario
+    from app.services.producto_service import crear_producto
 
     db = _make_session()
     datos = ProductoCreate(
@@ -62,8 +62,8 @@ def test_crear_producto_valido_con_stock_genera_traza():
 
 def test_crear_producto_stock_none_default_0():
     """RF-1: stock_inicial None/omitido -> 0 sin traza."""
-    from app.services.producto_service import crear_producto
     from app.models.movimiento_inventario import MovimientoInventario
+    from app.services.producto_service import crear_producto
 
     db = _make_session()
     datos = ProductoCreate(sku="SKU-003", nombre="Accesorio", categoria="accesorio")
@@ -90,6 +90,7 @@ def test_crear_producto_normaliza_sku_y_categoria():
 def test_crear_producto_rechaza_duplicado_exacto_409():
     """RF-1: SKU duplicado -> 409, incluye inactivos."""
     from fastapi import HTTPException
+
     from app.services.producto_service import crear_producto
 
     db = _make_session()
@@ -107,6 +108,7 @@ def test_crear_producto_rechaza_duplicado_exacto_409():
 def test_crear_producto_rechaza_duplicado_normalizado_409():
     """RF-1: duplicado tras normalización (case/espacios) -> 409."""
     from fastapi import HTTPException
+
     from app.services.producto_service import crear_producto
 
     db = _make_session()
@@ -125,6 +127,7 @@ def test_crear_producto_rechaza_duplicado_normalizado_409():
 def test_crear_producto_rechaza_duplicado_inactivo_409():
     """RNF-3: SKU de producto inactivo no reutilizable."""
     from fastapi import HTTPException
+
     from app.services.producto_service import crear_producto
 
     db = _make_session()
@@ -147,10 +150,12 @@ def test_crear_producto_rechaza_duplicado_inactivo_409():
 def test_crear_producto_captura_integrity_error_409():
     """RF-1: carrera por IntegrityError -> 409."""
     from unittest.mock import MagicMock
-    from sqlalchemy.exc import IntegrityError
+
     from fastapi import HTTPException
-    from app.services.producto_service import crear_producto
+    from sqlalchemy.exc import IntegrityError
+
     from app.schemas.producto import ProductoCreate
+    from app.services.producto_service import crear_producto
 
     # Mock de session que falla en commit por unique violation
     mock_db = MagicMock()

@@ -5,15 +5,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.database import Base
+from app.schemas.movimiento import MovimientoCreateEntrada, MovimientoCreateSalida
 from app.schemas.producto import ProductoCreate
 from app.schemas.proveedor import ProveedorCreate
-from app.schemas.movimiento import MovimientoCreateEntrada, MovimientoCreateSalida
 
 
 def _make_session():
+    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
     from app.models.producto import Producto  # noqa: F401
     from app.models.proveedor import Proveedor  # noqa: F401
-    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -59,8 +59,8 @@ def test_calcular_stock_sin_movimientos():
 
 def test_calcular_stock_con_movimientos_y_alerta():
     """RF-1: 5 inicial +10 entradas -3 salidas =12, mínimo 10 -> false, luego 7 -> true."""
-    from app.services.stock_service import calcular_stock
     from app.services.movimiento_service import registrar_entrada, registrar_salida
+    from app.services.stock_service import calcular_stock
 
     SessionLocal = _make_session()
     db = SessionLocal()
@@ -116,6 +116,7 @@ def test_calcular_stock_igual_minimo_false():
 def test_calcular_stock_normaliza_codigo_y_404():
     """RF-1: normaliza trim+upper, 404 si no existe o inactivo."""
     from fastapi import HTTPException
+
     from app.services.stock_service import calcular_stock
 
     SessionLocal = _make_session()

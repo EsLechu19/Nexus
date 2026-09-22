@@ -16,6 +16,7 @@ def test_main_incluye_proveedores_router(auth_headers):
 def test_openapi_lista_10_endpoints(auth_headers):
     """T12: GET /openapi.json lista 10 endpoints (5 productos + 5 proveedores)."""
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)
@@ -45,6 +46,7 @@ def test_openapi_lista_10_endpoints(auth_headers):
 def test_docs_proveedores_200(auth_headers):
     """T12: GET /docs 200 con ambos routers."""
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)

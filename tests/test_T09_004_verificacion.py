@@ -48,6 +48,7 @@ def test_T09_alembic_upgrade_head():
 
 def test_T09_docs_con_stock_y_alerta():
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)
@@ -64,10 +65,11 @@ def test_T09_stock_nunca_negativo():
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
     from sqlalchemy.pool import StaticPool
+
     from app.database import Base
+    from app.schemas.movimiento import MovimientoCreateEntrada, MovimientoCreateSalida
     from app.schemas.producto import ProductoCreate
     from app.schemas.proveedor import ProveedorCreate
-    from app.schemas.movimiento import MovimientoCreateEntrada, MovimientoCreateSalida
 
     engine = create_engine(
         "sqlite:///:memory:",
@@ -77,9 +79,9 @@ def test_T09_stock_nunca_negativo():
     Base.metadata.create_all(engine)
     SessionLocal = sessionmaker(bind=engine)
     db = SessionLocal()
+    from app.services.movimiento_service import registrar_entrada, registrar_salida
     from app.services.producto_service import crear_producto
     from app.services.proveedor_service import crear_proveedor
-    from app.services.movimiento_service import registrar_entrada, registrar_salida
     from app.services.stock_service import calcular_stock
 
     crear_producto(
@@ -102,8 +104,8 @@ def test_T09_stock_nunca_negativo():
     stock = calcular_stock(db, "STK-001")
     assert stock["stock_actual"] >= 0
     # Intentar dejar negativo debe fallar y no dejar negativo
-    from fastapi import HTTPException
     import pytest
+    from fastapi import HTTPException
 
     with pytest.raises(HTTPException) as exc:
         registrar_salida(

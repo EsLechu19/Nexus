@@ -1,11 +1,9 @@
 """Router de movimientos — solo HTTP y validación Pydantic (RF-1, RF-2, RF-3)."""
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from fastapi import HTTPException
-
 from app.schemas.movimiento import (
     MovimientoCreateEntrada,
     MovimientoCreateSalida,

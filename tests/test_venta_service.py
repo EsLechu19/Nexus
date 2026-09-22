@@ -8,13 +8,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.database import Base
 import app.models.movimiento_inventario  # noqa: F401
 import app.models.producto  # noqa: F401
 import app.models.proveedor  # noqa: F401
 import app.models.usuario  # noqa: F401
 import app.models.venta  # noqa: F401
 import app.models.venta_item  # noqa: F401
+from app.database import Base
 from app.models.producto import Producto
 
 
@@ -194,7 +194,7 @@ def test_venta_service_precio_invalido_y_valido():
             {
                 "producto_codigo": "PROD-001",
                 "cantidad": 1,
-                "precio_unitario": Decimal("10"),
+                "precio_unitario": Decimal(10),
             }
         ],
         {"nombre": "Ana"},
@@ -390,9 +390,9 @@ def test_venta_service_rollback_total_sin_movimientos():
     db.add_all([p_a, p_b])
     db.commit()
     db.close()
+    from app.models.movimiento_inventario import MovimientoInventario
     from app.models.venta import Venta
     from app.models.venta_item import VentaItem
-    from app.models.movimiento_inventario import MovimientoInventario
     from app.services.venta_service import calcular_stock_actual, registrar_venta
 
     db = SessionLocal()

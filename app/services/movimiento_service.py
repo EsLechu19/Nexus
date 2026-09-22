@@ -1,8 +1,8 @@
 """Service de movimientos — lógica de negocio (RF-1, RF-2, RF-3, RF-4)."""
 
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from app.models.movimiento_inventario import MovimientoInventario
 from app.models.producto import Producto

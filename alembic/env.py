@@ -1,7 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
@@ -16,13 +15,15 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from app.database import Base  # noqa: E402
-from app.models import producto  # noqa: E402, F401
-from app.models import movimiento_inventario  # noqa: E402, F401
-from app.models import proveedor  # noqa: E402, F401
-from app.models import usuario  # noqa: E402, F401
-from app.models import venta  # noqa: E402, F401
-from app.models import venta_item  # noqa: E402, F401
+from app.database import Base
+from app.models import (
+    movimiento_inventario,
+    producto,
+    proveedor,
+    usuario,
+    venta,
+    venta_item,
+)
 
 target_metadata = Base.metadata
 

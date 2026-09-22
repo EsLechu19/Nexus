@@ -11,6 +11,7 @@ def test_modelo_producto_existe_y_tabla():
 def test_modelo_producto_columnas_y_tipos():
     """T02: columnas id, sku, nombre, categoria, stock_inicial, estado, created_at, updated_at con tipos y defaults."""
     from sqlalchemy import Integer, String
+
     from app.models.producto import Producto
 
     cols = {c.name: c for c in Producto.__table__.columns}

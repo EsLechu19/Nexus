@@ -5,15 +5,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.database import Base
-from app.schemas.proveedor import ProveedorCreate
-from app.schemas.producto import ProductoCreate
 from app.schemas.movimiento import MovimientoCreateEntrada
+from app.schemas.producto import ProductoCreate
+from app.schemas.proveedor import ProveedorCreate
 
 
 def _make_session():
+    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
     from app.models.producto import Producto  # noqa: F401
     from app.models.proveedor import Proveedor  # noqa: F401
-    from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -42,7 +42,7 @@ def _crear_proveedor(db, codigo="PROV-001"):
 
 def test_registrar_entrada_valida_incrementa_stock():
     """RF-1: entrada válida incrementa stock y retorna movimiento."""
-    from app.services.movimiento_service import registrar_entrada, calcular_stock
+    from app.services.movimiento_service import calcular_stock, registrar_entrada
 
     db = _make_session()
     _crear_producto(db, codigo="PROD-001", stock_inicial=5)
@@ -102,6 +102,7 @@ def test_registrar_entrada_normaliza_codigos():
 def test_registrar_entrada_producto_no_existe_404():
     """RF-1: producto no existe -> 404."""
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_entrada
 
     db = _make_session()
@@ -120,6 +121,7 @@ def test_registrar_entrada_producto_no_existe_404():
 def test_registrar_entrada_producto_inactivo_400():
     """RF-1: producto inactivo -> 400."""
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_entrada
 
     db = _make_session()
@@ -141,6 +143,7 @@ def test_registrar_entrada_producto_inactivo_400():
 def test_registrar_entrada_proveedor_no_existe_404():
     """RF-1: proveedor no existe -> 404."""
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_entrada
 
     db = _make_session()
@@ -159,6 +162,7 @@ def test_registrar_entrada_proveedor_no_existe_404():
 def test_registrar_entrada_proveedor_inactivo_400():
     """RF-1: proveedor inactivo -> 400."""
     from fastapi import HTTPException
+
     from app.services.movimiento_service import registrar_entrada
 
     db = _make_session()
@@ -180,6 +184,7 @@ def test_registrar_entrada_proveedor_inactivo_400():
 def test_registrar_entrada_cantidad_invalida_422_schema():
     """RF-1: cantidad 0/negativa/decimal/>1M ya validada en schema -> 422, pero service no la recibe."""
     from pydantic import ValidationError
+
     from app.schemas.movimiento import MovimientoCreateEntrada
 
     for invalido in [0, -1, 1000001, 1.5, "10"]:
@@ -194,6 +199,7 @@ def test_registrar_entrada_cantidad_invalida_422_schema():
 def test_registrar_entrada_motivo_invalido_422_schema():
     """RF-1: motivo ''/1/201/\\n -> 422 en schema."""
     from pydantic import ValidationError
+
     from app.schemas.movimiento import MovimientoCreateEntrada
 
     for invalido in ["", "A", "A" * 201, "a\nb"]:

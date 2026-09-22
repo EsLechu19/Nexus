@@ -10,11 +10,12 @@ def test_modelo_movimiento_existe_y_tabla():
 
 def test_modelo_movimiento_columnas_y_tipos():
     """T03: columnas id, producto_id, tipo, cantidad, created_at con tipos, FK y defaults."""
-    from sqlalchemy import Integer, String, DateTime
+    from sqlalchemy import DateTime, Integer, String
+
+    from app.models.movimiento_inventario import MovimientoInventario
 
     # Importar Producto para que la FK pueda resolverse en el metadata
     from app.models.producto import Producto  # noqa: F401
-    from app.models.movimiento_inventario import MovimientoInventario
 
     cols = {c.name: c for c in MovimientoInventario.__table__.columns}
     for name in ["id", "producto_id", "tipo", "cantidad", "created_at"]:

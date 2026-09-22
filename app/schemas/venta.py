@@ -111,7 +111,7 @@ class VentaItemCreate(BaseModel):
         # Decimal con más de 2 decimales tiene exponent < -2
         if v.as_tuple().exponent < -2:  # type: ignore[operator]
             raise ValueError("precio_unitario debe tener máximo 2 decimales")
-        if v < Decimal("0") or v > Decimal("1000000"):
+        if v < Decimal(0) or v > Decimal(1000000):
             raise ValueError("precio_unitario debe estar entre 0 y 1000000")
         return v
 

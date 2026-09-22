@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import re
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-
-from typing import TYPE_CHECKING
 
 from app.models.movimiento_inventario import MovimientoInventario
 from app.models.producto import Producto
@@ -85,7 +84,7 @@ def _validar_item_formato(item: dict) -> str:
         raise HTTPException(
             status_code=422, detail="precio_unitario debe tener máximo 2 decimales"
         )
-    if precio_raw < Decimal("0") or precio_raw > Decimal("1000000"):
+    if precio_raw < Decimal(0) or precio_raw > Decimal(1000000):
         raise HTTPException(
             status_code=422, detail="precio_unitario debe estar entre 0 y 1000000"
         )

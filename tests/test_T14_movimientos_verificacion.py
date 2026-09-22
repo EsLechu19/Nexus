@@ -49,6 +49,7 @@ def test_T14_alembic_upgrade_head():
 
 def test_T14_docs_14_endpoints():
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)
@@ -77,10 +78,11 @@ def test_T14_stock_nunca_negativo():
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
     from sqlalchemy.pool import StaticPool
+
     from app.database import Base
+    from app.schemas.movimiento import MovimientoCreateEntrada, MovimientoCreateSalida
     from app.schemas.producto import ProductoCreate
     from app.schemas.proveedor import ProveedorCreate
-    from app.schemas.movimiento import MovimientoCreateEntrada, MovimientoCreateSalida
 
     engine = create_engine(
         "sqlite:///:memory:",
@@ -90,13 +92,13 @@ def test_T14_stock_nunca_negativo():
     Base.metadata.create_all(engine)
     SessionLocal = sessionmaker(bind=engine)
     db = SessionLocal()
-    from app.services.producto_service import crear_producto
-    from app.services.proveedor_service import crear_proveedor
     from app.services.movimiento_service import (
+        calcular_stock,
         registrar_entrada,
         registrar_salida,
-        calcular_stock,
     )
+    from app.services.producto_service import crear_producto
+    from app.services.proveedor_service import crear_proveedor
 
     crear_producto(
         db,

@@ -123,7 +123,7 @@ def test_movimiento_create_salida_proveedor_prohibido_422():
 
 
 def test_movimiento_response_y_historial_query():
-    from app.schemas.movimiento import MovimientoResponse, HistorialQuery
+    from app.schemas.movimiento import HistorialQuery, MovimientoResponse
 
     obj = MovimientoResponse(
         id=1,

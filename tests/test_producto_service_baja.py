@@ -9,8 +9,8 @@ from app.schemas.producto import ProductoCreate
 
 
 def _make_session():
-    from app.models.producto import Producto  # noqa: F401
     from app.models.movimiento_inventario import MovimientoInventario  # noqa: F401
+    from app.models.producto import Producto  # noqa: F401
 
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
@@ -57,6 +57,7 @@ def test_baja_producto_con_stock_inicial_mayor_cero_permite():
 def test_baja_producto_ya_inactivo_400():
     """RF-5: ya inactivo -> 400, no idempotente."""
     from fastapi import HTTPException
+
     from app.services.producto_service import baja_producto
 
     db = _make_session()
@@ -72,6 +73,7 @@ def test_baja_producto_ya_inactivo_400():
 def test_baja_producto_no_encontrado_404():
     """RF-5: SKU inexistente -> 404."""
     from fastapi import HTTPException
+
     from app.services.producto_service import baja_producto
 
     db = _make_session()
@@ -94,12 +96,12 @@ def test_baja_producto_normaliza_sku_path():
 
 def test_baja_producto_no_borra_fisicamente_y_excluido_de_listado():
     """RF-5 y RNF-1: no borra, excluido de listar_activos pero visible en obtener_por_sku."""
+    from app.models.producto import Producto
     from app.services.producto_service import (
         baja_producto,
         listar_activos,
         obtener_por_sku,
     )
-    from app.models.producto import Producto
 
     db = _make_session()
     _crear(db, sku="BAJA-005", nombre="Visible", categoria="consola")
@@ -119,8 +121,8 @@ def test_baja_producto_no_borra_fisicamente_y_excluido_de_listado():
 
 def test_baja_producto_no_borra_movimiento_inicial():
     """RNF-1: traza inicial permanece tras baja."""
-    from app.services.producto_service import baja_producto
     from app.models.movimiento_inventario import MovimientoInventario
+    from app.services.producto_service import baja_producto
 
     db = _make_session()
     _crear(db, sku="BAJA-007", stock_inicial=10)

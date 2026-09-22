@@ -4,11 +4,11 @@ from datetime import datetime
 
 from sqlalchemy import (
     CheckConstraint,
+    DateTime,
     ForeignKey,
     Index,
-    String,
     Integer,
-    DateTime,
+    String,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column

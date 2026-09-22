@@ -118,6 +118,7 @@ def test_actualizar_proveedor_codigo_mismo_se_ignora():
 def test_actualizar_proveedor_codigo_distinto_400():
     """RF-4: codigo distinto -> 400."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import actualizar_proveedor
 
     db = _make_session()
@@ -148,6 +149,7 @@ def test_actualizar_proveedor_estado_se_ignora():
 def test_actualizar_proveedor_inactivo_400():
     """RF-4: inactivo no editable."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import actualizar_proveedor
 
     db = _make_session()
@@ -163,6 +165,7 @@ def test_actualizar_proveedor_inactivo_400():
 def test_actualizar_proveedor_no_encontrado_404():
     """RF-4: no existe -> 404."""
     from fastapi import HTTPException
+
     from app.services.proveedor_service import actualizar_proveedor
 
     db = _make_session()

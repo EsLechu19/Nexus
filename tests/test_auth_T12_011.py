@@ -9,8 +9,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
-from app.models.usuario import Usuario  # noqa: F401
 from app.models.producto import Producto  # noqa: F401
+from app.models.usuario import Usuario  # noqa: F401
 
 
 def _make_client():

@@ -15,6 +15,7 @@ def test_main_incluye_movimientos_y_stock_router(auth_headers):
 def test_openapi_lista_14_endpoints(auth_headers):
     """T10: GET /openapi.json lista 14 endpoints (10 previos + 4 nuevos)."""
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)
@@ -40,6 +41,7 @@ def test_openapi_lista_14_endpoints(auth_headers):
 def test_docs_movimientos_200(auth_headers):
     """T10: GET /docs 200 con nuevos routers."""
     from fastapi.testclient import TestClient
+
     from app.main import app
 
     client = TestClient(app)
