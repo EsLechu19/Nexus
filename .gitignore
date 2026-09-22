@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.env
+!.env.example
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Base de datos local
+nexus.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+uvicorn.log
+uvicorn_err.log
+
+# Alembic
+alembic/__pycache__/
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+!frontend/.env.example
+# Dumps temporales de tests / depuración frontend (no commitear)
+frontend/test_output*.txt
+frontend/a11y*.txt
+frontend/priority*.txt
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Secrets (duplicado ya cubierto arriba, se mantiene .env.local)
+.env.local

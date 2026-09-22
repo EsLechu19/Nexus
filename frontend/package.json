@@ -1,0 +1,27 @@
+{
+  "name": "nexus-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "vite build",
+    "test": "node --test src/structure.test.js src/router-deps.test.js && vitest run --reporter=verbose",
+    "lint": "echo \"lint: no configurado aún — T20\"",
+    "format": "echo \"format: no configurado aún — T20\""
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/user-event": "^14.5.2",
+    "autoprefixer": "^10.6.1",
+    "jsdom": "^24.1.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.1",
+    "vitest": "^1.6.0"
+  }
+}

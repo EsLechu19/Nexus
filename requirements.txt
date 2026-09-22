@@ -1,0 +1,22 @@
+# Nexus — Sistema de Gestión de Inventario (Backend)
+# Python 3.11+ | FastAPI + PostgreSQL + SQLAlchemy + Alembic
+# Instalar: pip install -r requirements.txt
+
+# Core API
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+pydantic>=2.11.0
+sqlalchemy>=2.0.0
+alembic>=1.14.0
+python-multipart>=0.0.9
+
+# Auth / Seguridad
+PyJWT>=2.9.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.1.0
+
+# Base de datos PostgreSQL (prod); SQLite en dev no requiere driver extra
+psycopg2-binary>=2.9.9
+
+# Utilidades
+python-dotenv>=1.0.0

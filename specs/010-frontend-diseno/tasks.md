@@ -1,0 +1,29 @@
+# Tasks 010 — Frontend Sistema de Diseño Visual (Aplicación Retroactiva)
+
+> Orden de dependencia. Cada tarea 20-30 min. Respetar `frontend/docs/constitution.md:3,5,7` y `frontend/AGENTS.md:20,27`. No añade funcionalidad ni cambia comportamiento ya validado; solo capa visual. Tokens exactos definidos en `plan.md:2-4`. `grep -r "fetch("` y `grep -r "localStorage"` deben permanecer vacíos. Verificación visual `dev` vs `build` al cierre.
+
+## Fase 1 — Tokens y corrección de build
+
+- [x] **T01 — Extender `tailwind.config.js` con paleta, tipografía y espaciado** — RF-1 — Hecho cuando: `tailwind.config.js` `theme.extend` contiene `colors.primary 50 #f5f3ff → 900 #4c1d95 (500 #8b5cf6 primario)`, `neutral 0 #ffffff → 900 #111827`, `alerta/error/success/warning` con `50 #fef2f2 / 600 #dc2626` (`alerta` reemplaza `bg-red-50`), `fontFamily.sans` con `Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif` y `content: ["./index.html","./src/**/*.{js,jsx}"]` incluye `StockTabla` para no purgar `bg-alerta-50`; `npm run test` sigue verde (solo config, sin tocar componentes).
+
+- [x] **T02 — Verificar `postcss.config.js` y aplicar mapeo literal para purga segura** — RF-6, RNF-7 — Hecho cuando: `postcss.config.js` contiene `tailwindcss`+`autoprefixer` sin plugin nuevo, ningún `src/components|pages` construye clases con concatenación (`"bg-" + color` o `` `bg-${v}` ``) — grep `bg-.*\+` vacío; en su lugar existe objeto literal `alertaBadge{true:"bg-alerta-100 ..."}` y `boton{primario:"bg-primary-500 ..."}` con todas las combinaciones escritas literalmente; `npm run build` genera `dist/assets/*.css` con `bg-primary-500` y `bg-alerta-50` presentes.
+
+## Fase 2 — Componentes prioritarios (tablas y botones)
+
+- [x] **T03 — Aplicar tokens a las 4 tablas (productos, proveedores, movimientos, stock)** — RF-1, RF-2 — Hecho cuando: `StockTabla.jsx`, `ProductoTabla.jsx`, `ProveedorTabla.jsx`, `MovimientosHistorial.jsx` renderizan `th` `bg-neutral-100 text-neutral-700 font-medium text-xs uppercase p-3`, `td` `p-3 text-sm border-t border-neutral-200`, `table` `divide-y` y `hover:bg-neutral-50`, sin cambiar orden/paginación/filtrado; stock con `alerta true` muestra `badge bg-alerta-100 text-alerta-600` + `tr bg-alerta-50` nunca solo color; `stock_minimo 0`→`"0"`; `grep -r "bg-red-50"` vacío (migrado a `bg-alerta-50`); `npm run test` verde tras actualizar expectativas de clase.
+
+- [x] **T04 — Aplicar tokens a botones primario/secundario/peligro en las 4 pantallas** — RF-3 — Hecho cuando: `Stock.jsx`/`Productos.jsx`/`Proveedores.jsx`/`Movimientos.jsx` y `AppLayout` distinguen `primario bg-primary-500 hover:bg-primary-600`, `secundario bg-white border-neutral-200 hover:bg-neutral-50`, `peligro bg-error-600 hover:bg-error-700`, todos `px-4 py-2 rounded text-sm font-semibold focus:ring-2 focus:ring-primary-500` y `disabled:bg-primary-300`/`bg-error-300`+`cursor-not-allowed`; foco `focus:ring` idéntico en las 4 pantallas; sin cambiar `disabled` lógico ya validado; `npm run test` verde.
+
+## Fase 3 — Formularios y mensajes (inputs/modales, badges/banners)
+
+- [x] **T05 — Aplicar tokens a inputs y modales/diálogos** — RF-4 — Hecho cuando: `ProductoFormModal.jsx`, `ProveedorFormModal.jsx`, `MovimientoFormModal.jsx` muestran `input/select` `bg-neutral-0 border border-neutral-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500`, error `border-error-600`, `label` `text-sm font-medium text-neutral-700`, `modal overlay bg-neutral-900/50` y contenedor `bg-neutral-0 rounded-lg p-6 gap-4`; `ESC` ignorado durante `cargando` preservado; sin `fetch` nuevo; `npm run test` verde.
+
+- [x] **T06 — Aplicar tokens a badges y banners (Loading, ErrorMessage, EmptyState, ConfigErrorBanner)** — RF-5 — Hecho cuando: `StockTabla` badge `alerta false→"—" text-neutral-700` vs `true→bg-alerta-100 text-alerta-600`, `Loading` `text-neutral-700`, `EmptyState` `bg-neutral-0 border-neutral-200 p-6`, `ErrorMessage` `validacion` `bg-neutral-0` vs `conexion` `bg-error-50 border-error-100 text-error-700`, banner éxito `bg-success-50` (si existe) — todos con `Inter` y `4px` (gap/padding) y `role="alert"`/`aria-live` preservados; sin cambiar duración/posición/variante 4xx/5xx ya validada.
+
+## Fase 4 — Tests, layout y cierre
+
+- [x] **T07 — Actualizar tests que asertaban clases literales `bg-red-50`/`bg-gray`** — RNF-1 — Hecho cuando: `src/components/StockTabla.test.jsx`, `ProductoTabla.test.jsx` y `MovimientosHistorial.test.jsx` actualizan `expect(...).toMatch(/bg-red-50/)` → `/bg-alerta-50/` y `bg-gray`→`bg-neutral-100` (solo valor esperado, no lógica), verifican `Bajo stock` texto y `data-alerta` siguen iguales; `grep -r "bg-red-50"` vacío; `npm run test` verde.
+
+- [x] **T08 — Aplicar tokens al layout base (header, nav, main, AppLayout)** — RF-1 — Hecho cuando: `AppLayout.jsx`/`NavLinkItem.jsx` muestran `header`/`nav` con `bg-neutral-0 border-b border-neutral-200`, `nav` `gap-4`, link activo `text-primary-600 font-semibold aria-current="page"` vs inactivo `text-neutral-700`, `main` `p-6 gap-4` y `h2` `text-xl font-semibold`; fallback `fontFamily` `Inter, system-ui...` aplicado a `html`/`body`; sin cambiar `react-router-dom` ya validado.
+
+- [x] **T09 — Verificación final dev vs build, lint, test y hardcodeados** — Todos RF, RNF-1–7 — Hecho cuando: `npm run lint` sin errores, `npm run format` aplicado, `npm run test` 100% verde, `grep -r "fetch(" src/components src/pages src/hooks` vacío, `grep -r "localStorage"` vacío, `grep -r "#[0-9a-fA-F]\{3,6\}" src/components src/pages` vacío (sin hex dispersos, solo `tailwind.config.js` contiene hex), `grep -r "bg-.*\+" src/components` vacío (sin concatenación), `npm run dev` y `npm run build` + `preview` muestran misma paleta `primary-500 #8b5cf6`, `Inter` y `p-3=12px` en las 4 pantallas, con `Loading`/`EmptyState`/`ErrorMessage` y scroll/modales preservados.
