@@ -44,12 +44,32 @@ def validar_email_formato(email: str) -> bool:
     return bool(_EMAIL_REGEX.fullmatch(normalizado))
 
 
+def _truncar_bcrypt(password: str) -> str:
+    """Trunca a 72 bytes para bcrypt 4.x (ValueError si >72).
+
+    bcrypt solo usa 72 bytes; passlib<1.7 truncaba silencioso, bcrypt 4.x levanta.
+    Se trunca a nivel bytes para no romper utf-8.
+    """
+    b = password.encode("utf-8")
+    if len(b) > 72:
+        b = b[:72]
+        # evita cortar carácter utf-8 a la mitad
+        while True:
+            try:
+                return b.decode("utf-8")
+            except UnicodeDecodeError:
+                b = b[:-1]
+                if not b:
+                    return ""
+    return password
+
+
 def hash_password(password: str) -> str:
     """Hashea contraseña en claro con bcrypt (cost 12, salt automático).
 
     Nunca loguea el claro ni el hash.
     """
-    return _pwd_context.hash(password)
+    return _pwd_context.hash(_truncar_bcrypt(password))
 
 
 def verificar_password(password: str, password_hash: str) -> bool:
@@ -58,7 +78,7 @@ def verificar_password(password: str, password_hash: str) -> bool:
     Retorna True si coincide, False si no.
     """
     try:
-        return _pwd_context.verify(password, password_hash)
+        return _pwd_context.verify(_truncar_bcrypt(password), password_hash)
     except Exception:
         return False
 
