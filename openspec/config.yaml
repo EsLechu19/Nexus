@@ -1,0 +1,72 @@
+schema: spec-driven
+
+context: |
+  Project: Nexus inventory management system.
+  Scope: Full replacement and restructuring of the existing backend and frontend.
+  Backend: Python 3.11+, FastAPI, SQLAlchemy, Alembic, PostgreSQL/SQLite development.
+  Frontend: React 18, Vite, JavaScript ES2022, Tailwind CSS, Vitest.
+  Existing architecture: layered backend (routers/services/models/schemas) and React feature UI.
+  Existing conventions: API contracts, append-only inventory history, environment-based secrets.
+  The repository contains established specs 001-014 outside this OpenSpec store.
+
+strict_tdd: false
+
+projects:
+  - path: "."
+    stack: "Python 3.11+ / FastAPI / SQLAlchemy / Alembic"
+    test_command: "pytest -v"
+    coverage_command: "pytest --cov=app --cov-report=term-missing"
+    lint_command: "ruff check ."
+    format_command: "ruff format ."
+    typecheck_command: "mypy app"
+    test_framework: "pytest"
+    test_layers: [unit, integration]
+  - path: "frontend"
+    stack: "React 18 / Vite / JavaScript ES2022 / Tailwind CSS"
+    test_command: "npm run test"
+    coverage_command: "—"
+    lint_command: "npm run lint"
+    format_command: "npm run format"
+    typecheck_command: "—"
+    test_framework: "Node test runner + Vitest + Testing Library"
+    test_layers: [unit, integration]
+
+testing:
+  workspace_test_command: ""
+  strict_tdd_reason: "Disabled: two in-scope projects have independent local test commands and no explicit workspace-level command covers both."
+  backend:
+    test: "pytest -v"
+    coverage: "pytest --cov=app --cov-report=term-missing"
+    lint: "ruff check ."
+    format: "ruff format ."
+    typecheck: "mypy app"
+  frontend:
+    test: "npm run test"
+    coverage: "—"
+    lint: "npm run lint"
+    format: "npm run format"
+    typecheck: "—"
+
+rules:
+  proposal:
+    - Define the replacement boundary and migration/rollback strategy before implementation.
+    - Preserve historical inventory and sales traceability unless an approved change explicitly supersedes it.
+  specs:
+    - Use Given/When/Then scenarios and RFC 2119 keywords.
+    - Treat the replacement as a contract migration, not an implicit rewrite of requirements.
+  design:
+    - Document architecture decisions, data migration risks, and compatibility boundaries.
+  tasks:
+    - Order tasks by dependency and keep each task independently verifiable.
+  apply:
+    tdd: false
+    test_commands:
+      - "pytest -v"
+      - "npm run test --prefix frontend"
+  verify:
+    test_commands:
+      - "pytest -v"
+      - "npm run test --prefix frontend"
+    build_command: "npm run build --prefix frontend"
+  archive:
+    - Preserve the complete OpenSpec change history.

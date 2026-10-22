@@ -53,5 +53,8 @@ Thumbs.db
 .idea/
 *.code-workspace
 
+# Agent-local registry
+.atl/
+
 # Secrets (duplicado ya cubierto arriba, se mantiene .env.local)
 .env.local
