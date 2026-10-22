@@ -110,16 +110,25 @@ def registrar_salida(
     if datos.cantidad > calc["stock_actual"]:
         raise HTTPException(status_code=400, detail="Stock insuficiente")
 
-    movimiento = MovimientoInventario(
-        producto_id=producto.id,
-        proveedor_id=None,
-        tipo="salida",
-        cantidad=datos.cantidad,
-        motivo=motivo_norm,
-    )
-    db.add(movimiento)
+    movimiento = preparar_salida(db, producto.id, datos.cantidad, motivo_norm)
     db.commit()
     db.refresh(movimiento)
+    return movimiento
+
+
+def preparar_salida(
+    db: Session, producto_id: int, cantidad: int, motivo: str | None
+) -> MovimientoInventario:
+    """Agrega una salida sin decidir commit; el caso de uso posee la transacción."""
+    movimiento = MovimientoInventario(
+        producto_id=producto_id,
+        proveedor_id=None,
+        tipo="salida",
+        cantidad=cantidad,
+        motivo=motivo,
+    )
+    db.add(movimiento)
+    db.flush()
     return movimiento
 
 

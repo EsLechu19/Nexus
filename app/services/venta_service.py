@@ -13,6 +13,8 @@ from sqlalchemy.orm import Session
 from app.models.movimiento_inventario import MovimientoInventario
 from app.models.producto import Producto
 from app.services.auth_service import validar_email_formato
+from app.services.movimiento_service import preparar_salida
+from app.services.unit_of_work import UnitOfWork
 
 if TYPE_CHECKING:
     from app.models.venta import Venta
@@ -142,7 +144,6 @@ def registrar_venta(db: Session, datos: dict) -> "Venta":
     Reutiliza MovimientoInventario directamente (no llama a registrar_salida
     con commit separado) pero respeta su lógica de stock (SELECT FOR UPDATE).
     """
-    from app.models.movimiento_inventario import MovimientoInventario
     from app.models.venta import Venta
     from app.models.venta_item import VentaItem
 
@@ -162,67 +163,61 @@ def registrar_venta(db: Session, datos: dict) -> "Venta":
 
     # 5) Transacción atómica: venta + N salidas + N venta_items
     try:
-        # Crear venta cabecera
-        cliente_nombre = str(cliente.get("nombre", "")).strip()  # type: ignore[union-attr]
-        cliente_email_raw = cliente.get("email")  # type: ignore[union-attr]
-        cliente_email = None
-        if isinstance(cliente_email_raw, str) and cliente_email_raw.strip() != "":
-            cliente_email = cliente_email_raw.strip().lower()
-        elif cliente_email_raw is None:
+        with UnitOfWork(session=db) as uow:
+            # Crear venta cabecera
+            cliente_nombre = str(cliente.get("nombre", "")).strip()  # type: ignore[union-attr]
+            cliente_email_raw = cliente.get("email")  # type: ignore[union-attr]
             cliente_email = None
-        else:
-            # Si es string vacío, ya habría sido 422 en validar_formato, pero por seguridad
-            cliente_email = None
+            if isinstance(cliente_email_raw, str) and cliente_email_raw.strip() != "":
+                cliente_email = cliente_email_raw.strip().lower()
+            elif cliente_email_raw is None:
+                cliente_email = None
+            else:
+                # Si es string vacío, ya habría sido 422 en validar_formato.
+                cliente_email = None
 
-        venta = Venta(
-            cliente_nombre=cliente_nombre,
-            cliente_email=cliente_email,
-            total=total,
-        )
-        db.add(venta)
-        db.flush()  # para obtener venta.id sin commit
-
-        # Para cada ítem, crear movimiento salida y venta_item
-        for idx, item in enumerate(items):  # type: ignore[arg-type]
-            codigo_norm = str(item.get("producto_codigo", "")).strip().upper()
-            cantidad = int(item.get("cantidad"))  # type: ignore[arg-type]
-            precio = item.get("precio_unitario")  # Decimal
-            subtotal = subtotales[idx]
-
-            producto = db.query(Producto).filter(Producto.sku == codigo_norm).first()
-            # producto ya validado, pero re-obtenemos para id
-            assert producto is not None
-            # Crear movimiento salida directamente (sin commit separado)
-            movimiento = MovimientoInventario(
-                producto_id=producto.id,
-                proveedor_id=None,
-                tipo="salida",
-                cantidad=cantidad,
-                motivo=f"venta #{venta.id}",
+            venta = Venta(
+                cliente_nombre=cliente_nombre,
+                cliente_email=cliente_email,
+                total=total,
             )
-            db.add(movimiento)
-            db.flush()  # para obtener movimiento.id
+            uow.session.add(venta)
+            uow.session.flush()  # para obtener venta.id sin commit
 
-            # Crear venta_item con referencia a movimiento
-            producto_id = int(producto.id)  # type: ignore[arg-type]
-            venta_item = VentaItem(
-                venta_id=venta.id,
-                producto_id=producto_id,
-                cantidad=cantidad,
-                precio_unitario=precio,
-                subtotal=subtotal,
-                movimiento_id=movimiento.id,
-            )
-            db.add(venta_item)
+            # Para cada ítem, crear movimiento salida y venta_item
+            for idx, item in enumerate(items):  # type: ignore[arg-type]
+                codigo_norm = str(item.get("producto_codigo", "")).strip().upper()
+                cantidad = int(item.get("cantidad"))  # type: ignore[arg-type]
+                precio = item.get("precio_unitario")  # Decimal
+                subtotal = subtotales[idx]
 
-        db.commit()
-        db.refresh(venta)
-        return venta
+                producto = (
+                    uow.session.query(Producto)
+                    .filter(Producto.sku == codigo_norm)
+                    .first()
+                )
+                assert producto is not None
+                movimiento = preparar_salida(
+                    uow.session, int(producto.id), cantidad, f"venta #{venta.id}"
+                )
+
+                # Crear venta_item con referencia a movimiento
+                venta_item = VentaItem(
+                    venta_id=venta.id,
+                    producto_id=int(producto.id),
+                    cantidad=cantidad,
+                    precio_unitario=precio,
+                    subtotal=subtotal,
+                    movimiento_id=movimiento.id,
+                )
+                uow.session.add(venta_item)
+
+            uow.commit()
+            db.refresh(venta)
+            return venta
     except HTTPException:
-        db.rollback()
         raise
     except Exception as exc:
-        db.rollback()
         raise HTTPException(status_code=500, detail="Error al registrar venta") from exc
 
 

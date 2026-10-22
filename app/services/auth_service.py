@@ -1,6 +1,5 @@
 """Service de autenticación — hasheo, validación de email y JWT (RF-1, RF-4, RF-5, RNF-1, RNF-2, RNF-3)."""
 
-import os
 import re
 from datetime import datetime, timedelta, timezone
 
@@ -8,6 +7,8 @@ import hashlib
 
 import bcrypt  # type: ignore[import-untyped]
 import jwt  # type: ignore[import-untyped]
+
+from app.config import get_settings
 
 # Regex sintáctico de email como en 002-proveedores (sin verificar dominio).
 _EMAIL_REGEX = re.compile(r"^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$")
@@ -92,11 +93,8 @@ def _truncar_bcrypt(password: str) -> str:
 
 
 def _obtener_secret() -> str:
-    """Obtiene JWT_SECRET_KEY de variable de entorno, nunca hardcodeado."""
-    secret = os.getenv("JWT_SECRET_KEY")
-    if not secret:
-        # Fallback a SECRET_KEY por compatibilidad, pero nunca valor por defecto hardcodeado en código
-        secret = os.getenv("SECRET_KEY", "")
+    """Obtiene JWT_SECRET_KEY; get_settings centraliza os.getenv y valida."""
+    secret = get_settings().jwt_secret_key
     if not secret:
         raise ValueError("JWT_SECRET_KEY no configurado")
     return secret
