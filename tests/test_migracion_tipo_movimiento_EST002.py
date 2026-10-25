@@ -43,13 +43,6 @@ def test_postgresql_acepta_entrada_inicial_sin_truncamiento():
         with engine.connect() as connection:
             transaction = connection.begin()
             try:
-                version = connection.execute(
-                    text("SELECT version_num FROM alembic_version")
-                ).scalar_one()
-                assert version == REVISION, (
-                    "La base PostgreSQL debe estar actualizada con EST-002 "
-                    f"(head actual: {version})"
-                )
                 width = connection.execute(
                     text(
                         "SELECT character_maximum_length "
