@@ -6,9 +6,9 @@ import React, { useState, useEffect } from 'react';
  */
 export default function ProductoFormModal({ modo = 'alta', producto, onSubmit, onClose, cargando = false, errorApi }) {
   const esEdicion = modo === 'edicion';
-  const [nombre, setNombre] = useState('');
-  const [sku, setSku] = useState('');
-  const [categoria, setCategoria] = useState('');
+  const [nombre, setNombre] = useState(() => (esEdicion && producto ? producto.nombre || '' : ''));
+  const [sku, setSku] = useState(() => (esEdicion && producto ? producto.sku || '' : ''));
+  const [categoria, setCategoria] = useState(() => (esEdicion && producto ? producto.categoria || '' : ''));
   const [stock, setStock] = useState('');
   const [errores, setErrores] = useState({});
 
