@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.models.movimiento_inventario import MovimientoInventario
 from app.models.producto import Producto
 from app.services.auth_service import validar_email_formato
-from app.services.movimiento_service import preparar_salida
+from app.services import movimiento_service
 from app.services.unit_of_work import UnitOfWork
 
 if TYPE_CHECKING:
@@ -150,20 +150,15 @@ def registrar_venta(db: Session, datos: dict) -> "Venta":
     cliente = datos.get("cliente")
     items = datos.get("items")
 
-    # 1) Validación sin BD ya pasó en schemas, pero revalidamos por seguridad (422)
-    validar_formato(items, cliente)  # type: ignore[arg-type]
-
-    # 2) Validación con BD: existencia y activo (404/400) — antes de stock
-    validar_existencia_y_activo(db, items)  # type: ignore[arg-type]
-    # 3) Validación de stock con SELECT FOR UPDATE y mensaje específico (400)
-    validar_stock_suficiente(db, items)  # type: ignore[arg-type]
-
-    # 4) Cálculo Decimal exacto
-    subtotales, total = calcular_totales(items)  # type: ignore[arg-type]
-
-    # 5) Transacción atómica: venta + N salidas + N venta_items
     try:
         with UnitOfWork(session=db) as uow:
+            # Toda la operación, incluidas las validaciones que toman locks,
+            # pertenece a la misma transacción.
+            validar_formato(items, cliente)  # type: ignore[arg-type]
+            validar_existencia_y_activo(uow.session, items)  # type: ignore[arg-type]
+            validar_stock_suficiente(uow.session, items)  # type: ignore[arg-type]
+            subtotales, total = calcular_totales(items)  # type: ignore[arg-type]
+
             # Crear venta cabecera
             cliente_nombre = str(cliente.get("nombre", "")).strip()  # type: ignore[union-attr]
             cliente_email_raw = cliente.get("email")  # type: ignore[union-attr]
@@ -197,7 +192,7 @@ def registrar_venta(db: Session, datos: dict) -> "Venta":
                     .first()
                 )
                 assert producto is not None
-                movimiento = preparar_salida(
+                movimiento = movimiento_service.preparar_salida(
                     uow.session, int(producto.id), cantidad, f"venta #{venta.id}"
                 )
 
@@ -232,11 +227,8 @@ def calcular_stock_actual(db: Session, producto_codigo: str) -> int:
         raise HTTPException(
             status_code=404, detail=f"Producto no encontrado: {codigo_norm}"
         )
-    # Bloqueo pesimista para serializar (en SQLite se ignora si no soporta)
-    try:
-        db.query(Producto).filter(Producto.id == producto.id).with_for_update().first()  # type: ignore[attr-defined]
-    except Exception:
-        pass
+    # En PostgreSQL este lock permanece hasta el commit/rollback de la sesión.
+    db.query(Producto).filter(Producto.id == producto.id).with_for_update().first()
     entradas = (
         db.query(func.coalesce(func.sum(MovimientoInventario.cantidad), 0))
         .filter(
@@ -259,6 +251,17 @@ def calcular_stock_actual(db: Session, producto_codigo: str) -> int:
 
 def validar_stock_suficiente(db: Session, items: list[dict]) -> None:
     """Valida que cada ítem tenga stock suficiente, con mensaje específico por producto. 400 si falla."""
+    # Adquirir todos los locks en orden estable evita deadlocks cuando dos
+    # ventas multiítem reciben los mismos productos en distinto orden.
+    productos = {}
+    for item in items:
+        codigo_norm = str(item.get("producto_codigo", "")).strip().upper()
+        producto = db.query(Producto).filter(Producto.sku == codigo_norm).first()
+        if producto is not None:
+            productos[int(producto.id)] = producto
+    for producto_id in sorted(productos):
+        db.query(Producto).filter(Producto.id == producto_id).with_for_update().first()
+
     for item in items:
         codigo_raw = item.get("producto_codigo", "")
         codigo_norm = str(codigo_raw).strip().upper()

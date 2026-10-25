@@ -70,12 +70,7 @@ def registrar_entrada(
     producto = _get_producto_activo(db, producto_codigo_norm)
     proveedor = _get_proveedor_activo(db, proveedor_codigo_norm)
 
-    # Para SQLite, el bloqueo se simula con la transacción; en Postgres usaríamos with_for_update()
-    try:
-        # Intentar SELECT FOR UPDATE si el dialecto lo soporta
-        db.query(Producto).filter(Producto.id == producto.id).with_for_update().first()  # type: ignore[attr-defined]
-    except Exception:
-        pass  # SQLite no soporta FOR UPDATE, se ignora
+    db.query(Producto).filter(Producto.id == producto.id).with_for_update().first()
 
     movimiento = MovimientoInventario(
         producto_id=producto.id,
@@ -99,11 +94,8 @@ def registrar_salida(
 
     producto = _get_producto_activo(db, producto_codigo_norm)
 
-    # Bloqueo pesimista para serializar salidas concurrentes
-    try:
-        db.query(Producto).filter(Producto.id == producto.id).with_for_update().first()  # type: ignore[attr-defined]
-    except Exception:
-        pass
+    # El lock permanece hasta el commit/rollback de esta operación.
+    db.query(Producto).filter(Producto.id == producto.id).with_for_update().first()
 
     # Calcular stock actual y validar suficiencia
     calc = _calcular_stock_actual(db, producto.id, producto.stock_inicial)
