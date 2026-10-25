@@ -15,7 +15,7 @@ Continuar el reemplazo de forma incremental, preservando contratos y trazabilida
 ## Tareas
 
 - [x] T1.4 — Caracterizar y corregir atomicidad de ventas, items y movimientos.
-- [ ] T1.7 — Resolver el gate de rollback después de cerrar T1.4.
+- [x] T1.7 — Resolver el gate de rollback después de cerrar T1.4.
 
 ## Criterios de aceptación T1.4
 
@@ -30,7 +30,7 @@ Continuar el reemplazo de forma incremental, preservando contratos y trazabilida
 - Ruta: worker único delegado; toca múltiples archivos no triviales.
 - TDD estricto: deshabilitado por configuración existente.
 - Checks: tests focalizados, PostgreSQL real para concurrencia, suite backend, Ruff, formato y mypy.
-- Estado: T1.4 completada; T1.7 pendiente.
+- Estado: T1.4 y T1.7 completadas.
 
 ## Evidencia T1.4
 
@@ -53,5 +53,17 @@ Continuar el reemplazo de forma incremental, preservando contratos y trazabilida
 - **Evidencia final:** `python -m pytest -v tests/test_t14_venta_atomicidad_postgresql.py`
   → **5 passed** contra PostgreSQL real, incluyendo concurrencia sin stock
   negativo. Commit: `d5745ef asegura atomicidad de ventas`.
-- **Bloqueo restante:** T1.7 requiere resolver el gate de rollback; no se
-  modificaron esquema, migraciones, frontend ni contratos HTTP.
+- **Bloqueo restante:** ninguno para T1.4; el gate de rollback se documenta en
+  la evidencia T1.7.
+
+## Evidencia T1.7
+
+- **Estado:** completada con validación de CI y merge en `master`.
+- **Corrección validada:** `frontend/src/components/ProductoFormModal.jsx`
+  inicializa los campos de edición desde `producto`, evitando que el primer
+  render exponga un SKU vacío.
+- **Checks focalizados:** `npm test -- --run src/pages/Productos.test.jsx`
+  → 18 passed; suite frontend → 322 passed.
+- **CI:** PR #1 pasó Backend — ruff / mypy / pytest y Frontend — vitest / build.
+- **Punto de rollback conocido:** commit `28f8318` (`master`), merge squash
+  del PR #1. Este commit es el último estado validado de la corrección.
