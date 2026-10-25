@@ -19,7 +19,7 @@ Corregir los problemas actuales de configuración, migraciones, CI, pruebas y do
 - [ ] EST-003 — Validar la cadena completa de Alembic online y offline contra PostgreSQL.
 - [x] EST-004 — Migrar CI y pruebas de integración a PostgreSQL 18.
 - [x] EST-005 — Actualizar README y documentación operativa para eliminar SQLite como runtime.
-- [ ] EST-006 — Ejecutar la verificación completa y registrar los fallos restantes sin ocultarlos.
+- [x] EST-006 — Ejecutar la verificación completa y registrar los fallos restantes sin ocultarlos.
 - [x] EST-007 — Crear baseline PostgreSQL limpio para bases vacías y conservar la cadena histórica sin modificarla.
 - [x] EST-008 — Adaptar la suite restante al baseline PostgreSQL y eliminar fixtures SQLite incompatibles.
 
@@ -59,6 +59,8 @@ Corregir los problemas actuales de configuración, migraciones, CI, pruebas y do
 - Evidencia EST-007 — prueba reproducible: el modo offline emite el `INSERT INTO alembic_version` de `000000000001`; además, si el esquema baseline existe y `alembic_version` está vacío, `current` ya no queda bloqueado y `stamp head` puede registrar `000000000001`; `upgrade` continúa rechazando la base no vacía. Pruebas focalizadas: `python -m pytest -v tests/test_baseline_postgresql_EST007.py tests/test_alembic_baseline_config_EST007.py` (11 passed).
 - Evidencia adicional — la ejecución local de `python -m alembic -c alembic-baseline.ini current -v` encontró una base `nexus_dev` sin tablas, por lo que el estado exacto "esquema creado + versión vacía" no pudo reproducirse sin modificar la base del usuario. El SQL offline confirma que un `upgrade` exitoso sí debe insertar `000000000001`; un caso real de versión vacía requiere revisar que `upgrade` y `current` hayan usado la misma `DATABASE_URL`, o aplicar la reparación `stamp` documentada.
 - Evidencia adicional — `python -m pytest -v`: **FAIL** — 497 passed, 1 skipped y 13 failed; los fallos restantes pertenecen a la cadena histórica PostgreSQL (`7010b4ddca09` intenta eliminar `productos_pkey` con una FK dependiente), pruebas antiguas SQLite/configuración y no al baseline corregido.
+- Cierre EST-008 — `python -m pytest -v tests/test_baseline_postgresql_EST007.py tests/test_migracion_tipo_movimiento_EST002.py`: **11 passed** contra PostgreSQL real. La prueba incluye upgrade online del baseline vacío y la inserción de `entrada_inicial` sin truncamiento.
+- Estado final de estabilización — baseline PostgreSQL operativo validado en `nexus_dev`; EST-003 permanece abierta únicamente para la cadena histórica legacy, que no se usa en el flujo operativo.
 
 ### Actualización del baseline online — 2026-10-24
 
