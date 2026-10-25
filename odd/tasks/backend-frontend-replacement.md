@@ -30,12 +30,11 @@ Continuar el reemplazo de forma incremental, preservando contratos y trazabilida
 - Ruta: worker único delegado; toca múltiples archivos no triviales.
 - TDD estricto: deshabilitado por configuración existente.
 - Checks: tests focalizados, PostgreSQL real para concurrencia, suite backend, Ruff, formato y mypy.
-- Estado: pendiente de implementación.
+- Estado: T1.4 completada; T1.7 pendiente.
 
 ## Evidencia T1.4
 
-- **Estado:** implementada localmente; la evidencia PostgreSQL de concurrencia
-  queda bloqueada porque `DATABASE_URL` no estuvo disponible en el proceso.
+- **Estado:** completada con evidencia PostgreSQL real.
 - **Archivos:** `app/services/venta_service.py`,
   `app/services/movimiento_service.py` y
   `tests/test_t14_venta_atomicidad_postgresql.py`.
@@ -51,6 +50,8 @@ Continuar el reemplazo de forma incremental, preservando contratos y trazabilida
   de ventas/movimientos → 27 passed, 1 skipped; `python -m ruff check` sobre
   archivos afectados → OK; `python -m ruff format --check` sobre archivos
   afectados → OK; `python -m mypy app --ignore-missing-imports` → OK.
-- **Bloqueo restante:** ejecutar la prueba PostgreSQL real con
-  `DATABASE_URL` disponible, sin imprimir la URL. No se modificaron esquema,
-  migraciones, frontend ni contratos HTTP.
+- **Evidencia final:** `python -m pytest -v tests/test_t14_venta_atomicidad_postgresql.py`
+  → **5 passed** contra PostgreSQL real, incluyendo concurrencia sin stock
+  negativo. Commit: `d5745ef asegura atomicidad de ventas`.
+- **Bloqueo restante:** T1.7 requiere resolver el gate de rollback; no se
+  modificaron esquema, migraciones, frontend ni contratos HTTP.
