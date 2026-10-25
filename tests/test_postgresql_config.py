@@ -82,11 +82,15 @@ def test_settings_error_does_not_disclose_url(monkeypatch):
 
 
 def test_database_has_no_sqlite_connection_arguments(monkeypatch):
-    monkeypatch.setenv("DATABASE_URL", "postgresql://user:password@localhost/nexus_dev")
+    monkeypatch.setenv(
+        "DATABASE_URL", "postgresql+psycopg2://user:password@localhost/nexus_dev"
+    )
     monkeypatch.setenv("JWT_SECRET_KEY", "test-secret-32-characters-minimum!!")
 
     database = importlib.import_module("app.database")
     database = importlib.reload(database)
 
-    assert database.SQLALCHEMY_DATABASE_URL.startswith("postgresql://")
+    assert database.SQLALCHEMY_DATABASE_URL.startswith(
+        ("postgresql://", "postgresql+psycopg2://")
+    )
     assert database.engine.url.get_backend_name() == "postgresql"

@@ -12,7 +12,8 @@ def test_ci_provisiona_postgresql_18_con_base_de_test_aislada():
 
     assert "image: postgres:18" in workflow
     assert "POSTGRES_DB: nexus_test" in workflow
-    assert "DATABASE_URL: postgresql://" in workflow
+    assert re.search(r"DATABASE_URL:\s+postgresql(?:\+psycopg2)?://", workflow)
+    assert "sqlite:///" not in workflow
     assert "localhost:5432/nexus_test" in workflow
 
 

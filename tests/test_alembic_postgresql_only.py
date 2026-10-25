@@ -48,7 +48,7 @@ def test_alembic_offline_mode_uses_environment_postgresql_url():
         "upgrade",
         "1a81a5e6e75b",
         "--sql",
-        database_url="postgresql://test:test@localhost:5432/nexus_dev",
+        database_url="postgresql+psycopg2://test:test@localhost:5432/nexus_dev",
     )
 
     assert result.returncode == 0, result.stderr
@@ -61,7 +61,7 @@ def test_alembic_offline_mode_rejects_historical_batch_chain_explicitly():
         "upgrade",
         "head",
         "--sql",
-        database_url="postgresql://test:test@localhost:5432/nexus_dev",
+        database_url="postgresql+psycopg2://test:test@localhost:5432/nexus_dev",
     )
 
     assert result.returncode != 0
