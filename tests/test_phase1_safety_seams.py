@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.config import ConfigurationError, Settings
+import app.config as config
 from app.compatibility import present_compatibly
 from app.cutover import select_capability
 from app.database import Base
@@ -15,6 +16,7 @@ from app.services.unit_of_work import UnitOfWork
 
 
 def test_settings_rejects_invalid_database_without_disclosing_value(monkeypatch):
+    monkeypatch.setattr(config, "DOTENV_PATH", Path("missing-test-env"))
     monkeypatch.setenv("DATABASE_URL", "postgresql://user:secret@example/db")
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.delenv("JWT_SECRET_KEY", raising=False)

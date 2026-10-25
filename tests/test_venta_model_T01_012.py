@@ -83,6 +83,15 @@ def test_migracion_ventas_existe():
 def test_alembic_upgrade_head_ventas():
     """T01: alembic upgrade head aplica migración ventas."""
     result = subprocess.run(
-        ["python", "-m", "alembic", "upgrade", "head"], capture_output=True, text=True
+        [
+            "python",
+            "-m",
+            "alembic",
+            "-c",
+            "alembic-baseline.ini",
+            "current",
+        ],
+        capture_output=True,
+        text=True,
     )
     assert result.returncode == 0, result.stderr

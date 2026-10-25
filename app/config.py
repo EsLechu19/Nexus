@@ -4,11 +4,43 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlparse
+
+from dotenv import dotenv_values
+
+
+SUPPORTED_DATABASE_SCHEMES = {
+    "postgresql",
+    "postgresql+psycopg2",
+}
+DOTENV_PATH = Path(__file__).resolve().parents[1] / ".env"
 
 
 class ConfigurationError(ValueError):
     """Raised when required runtime configuration is unsafe or incomplete."""
+
+
+def _read_environment() -> dict[str, str]:
+    """Read .env values without replacing explicitly provided variables."""
+    dotenv_environment = {
+        key: value
+        for key, value in dotenv_values(DOTENV_PATH).items()
+        if value is not None
+    }
+    return {**dotenv_environment, **os.environ}
+
+
+def validate_database_url(database_url: str) -> str:
+    """Validate and return the PostgreSQL URL used by the application."""
+    value = database_url.strip()
+    if not value:
+        raise ConfigurationError("DATABASE_URL is required")
+
+    scheme = urlparse(value).scheme.lower()
+    if scheme not in SUPPORTED_DATABASE_SCHEMES:
+        raise ConfigurationError("DATABASE_URL must use PostgreSQL")
+    return value
 
 
 @dataclass(frozen=True)
@@ -21,18 +53,13 @@ class Settings:
 
     @classmethod
     def from_environment(cls) -> "Settings":
-        environment = os.getenv("APP_ENV", "development").strip().lower()
-        database_url = os.getenv("DATABASE_URL", "sqlite:///nexus.db").strip()
-        if not database_url:
-            raise ConfigurationError("DATABASE_URL is required")
+        environment_values = _read_environment()
+        environment = environment_values.get("APP_ENV", "development").strip().lower()
+        database_url = validate_database_url(environment_values.get("DATABASE_URL", ""))
 
-        parsed = urlparse(database_url)
-        if parsed.scheme not in {"sqlite", "postgresql", "postgres"}:
-            raise ConfigurationError("DATABASE_URL has an unsupported scheme")
-        if environment == "production" and parsed.scheme == "sqlite":
-            raise ConfigurationError("DATABASE_URL must use PostgreSQL in production")
-
-        secret = os.getenv("JWT_SECRET_KEY") or os.getenv("SECRET_KEY")
+        secret = environment_values.get("JWT_SECRET_KEY") or environment_values.get(
+            "SECRET_KEY"
+        )
         if environment == "production" and not secret:
             raise ConfigurationError("JWT_SECRET_KEY is required in production")
         if secret is not None and len(secret) < 16:

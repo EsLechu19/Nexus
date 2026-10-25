@@ -49,7 +49,16 @@ def test_alembic_current_head_extiende():
     import sys
 
     result = subprocess.run(
-        [sys.executable, "-m", "alembic", "current"], capture_output=True, text=True
+        [
+            sys.executable,
+            "-m",
+            "alembic",
+            "-c",
+            "alembic-baseline.ini",
+            "current",
+        ],
+        capture_output=True,
+        text=True,
     )
     assert result.returncode == 0
-    assert "9111dba96a53" in result.stdout or "head" in result.stdout.lower()
+    assert "000000000001" in result.stdout

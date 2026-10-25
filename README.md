@@ -49,7 +49,7 @@ Todo el código, los tests y las migraciones se generaron siguiendo SDD: cada fu
 | `app/main.py` + `database.py` | FastAPI, CORS, `Base`, `get_db` | — |
 | `alembic/` | Migraciones versionadas, nunca editar una ya aplicada | Constitución §5 |
 
-**Stack:** `FastAPI` + `PostgreSQL` (SQLite `nexus.db` en dev) + `SQLAlchemy` + `Alembic` + `Pydantic` + `PyJWT` + `passlib[bcrypt]` + `python-multipart`. Python 3.11+ con `type hints` obligatorios.
+**Stack:** `FastAPI` + `PostgreSQL 18` + `SQLAlchemy` + `Alembic` + `Pydantic` + `PyJWT` + `passlib[bcrypt]` + `python-multipart`. PostgreSQL 18 es obligatorio para la aplicación, Alembic, las pruebas de integración y CI. Python 3.11+ con `type hints` obligatorios.
 
 ### Frontend — `Nexus/frontend/`
 
@@ -101,7 +101,7 @@ Cada spec siguió: `spec.md` (EARS) → clarificación QA → `plan.md` → `tas
 
 ## Modelo de datos
 
-**PostgreSQL (SQLite dev). Tablas en plural, modelos en singular.**
+**PostgreSQL 18. Tablas en plural, modelos en singular.**
 
 - `usuarios` — `id PK`, `email VARCHAR(254) UNIQUE` (normalizado `trim+lower`), `password_hash VARCHAR(72)` bcrypt, `created_at TIMESTAMPTZ` — migración `ff5b41c7a385`.
 - `productos` — `sku VARCHAR(20) UNIQUE` `CHECK 3..20`, `nombre VARCHAR(100)` `CHECK trim 2..100`, `categoria` `videojuego|consola|accesorio`, `stock_inicial/minimo INT 0..1M`, `estado` `activo|inactivo`, `created_at/updated_at` — migración `63276eeea69c`.
@@ -168,15 +168,16 @@ Códigos transversales: `422` validación estructura, `404` no encontrado, `400`
 
 ### Requisitos
 
-- Python 3.11+, Node 18+, PostgreSQL (o SQLite dev `nexus.db`), `uvicorn`, `npm`.
+- Python 3.11+, Node 18+, PostgreSQL 18, `uvicorn`, `npm`.
 
 ### Backend
 
 ```powershell
 cd Nexus
 pip install -r requirements.txt
-# JWT (mínimo 32 bytes, nunca hardcodeado)
-$env:JWT_SECRET_KEY="dev-secret-32chars-minimo-para-jwt!!"
+# Configura DATABASE_URL y JWT_SECRET_KEY en el entorno local; no uses valores del repositorio.
+$env:DATABASE_URL="postgresql://<user>:<password>@localhost:5432/nexus_dev"
+$env:JWT_SECRET_KEY="<secret-local-de-al-menos-32-caracteres>"
 alembic upgrade head
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 # Swagger en http://localhost:8000/docs
@@ -201,17 +202,18 @@ npm run build    # build producción
 
 `VITE_API_URL` debe ser `http(s)://` absoluta; vacía/espacios/no-absoluta → `ConfigErrorBanner` `Error de conexión con el servidor` con `Reintentar`.
 
-## Credenciales de prueba
+## Credenciales locales
 
-Creadas vía CLI y verificadas con `POST /api/v1/auth/login` → `200`:
+No se publican credenciales ni secretos en el repositorio. Define `DATABASE_URL` y
+`JWT_SECRET_KEY` en `.env` (a partir de `.env.example`) o en el entorno de la
+sesión. Crea usuarios locales mediante la CLI, usando valores elegidos fuera del
+repositorio:
 
-| Email | Contraseña | Uso |
-|-------|------------|-----|
-| `admin@nexus.com` | `NexusAdmin123` | Usuario de prueba solicitado (creado ahora) |
-| `admin@tienda.com` | `Admin1234` | Admin principal (recreado) |
-| `demo@tienda.com` | `Demo12345` | Demo secundario |
+```powershell
+python -m app.cli.crear_usuario --email "<email-local>" --password "<password-local>"
+```
 
-Login en `http://localhost:5173/login` con cualquiera de ellas. Tras `F5` o cierre de pestaña el token se pierde (memoria) y se vuelve a `/login` recordando la ruta (ej. `/stock`).
+Tras `F5` o cierre de pestaña el token se pierde (memoria) y se vuelve a `/login`.
 
 ## Testing, Lint y Tipado
 
@@ -223,8 +225,8 @@ pytest --cov=app --cov-report=term-missing
 ruff check .                       # All checks passed
 ruff format --check .              # 121 files already formatted
 mypy app --ignore-missing-imports  # Success in 34 files
-alembic current                    # 2c3245f4f658 (head) — ventas
-alembic downgrade -1; alembic upgrade head # sin pérdida
+  alembic current                    # a1b2c3d4e5f6 (head)
+  alembic upgrade head               # contra nexus_dev, sin importar datos
 ```
 
 **Frontend (`Nexus/frontend/`):**
@@ -292,7 +294,7 @@ hello-sdd/
     │   ├── 011-autenticacion/
     │   ├── 012-ventas/
     │   └── 013-frontend-autenticacion/
-    └── tests/ + nexus.db (SQLite dev)
+    └── tests/                  # Persistencia e integración contra PostgreSQL 18
 ```
 
 ## Estado actual y próximos pasos
@@ -315,4 +317,17 @@ hello-sdd/
 
 > **Flujo en una línea:** `Constitución → Spec → Clarificación → Plan → Tasks → Implementación (una tarea cada vez, tests primero) → Validación → Cambio (primero la spec, luego el código).`
 > Sesión actual: `Nexus` `013-frontend-autenticacion` T01-T07 completadas, `specs/013` validada como **Cumplida**.
+
+## Operación de la base de datos
+
+La base operativa de desarrollo es PostgreSQL 18 con la base vacía `nexus_dev`.
+La misma frontera PostgreSQL aplica a la aplicación, Alembic, las pruebas de
+integración y CI. `nexus.db`, si existe como artefacto histórico, queda archivado
+y no operativo: no es fallback, no es fuente de datos y no se importan ni copian
+sus registros automáticamente.
+
+El procedimiento reproducible para preparar y validar el esquema está en
+[`docs/migration-runbook.md`](docs/migration-runbook.md). Las credenciales se
+inyectan mediante variables de entorno o secretos del proveedor de CI; nunca se
+guardan en el repositorio ni se muestran completas en diagnósticos.
 

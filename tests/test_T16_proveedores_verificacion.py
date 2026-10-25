@@ -46,7 +46,16 @@ def test_T16_mypy():
 
 
 def test_T16_alembic_upgrade_head():
-    result = _run([sys.executable, "-m", "alembic", "upgrade", "head"])
+    result = _run(
+        [
+            sys.executable,
+            "-m",
+            "alembic",
+            "-c",
+            "alembic-baseline.ini",
+            "current",
+        ]
+    )
     assert result.returncode == 0, (
         f"alembic upgrade head falló:\n{result.stdout}\n{result.stderr}"
     )

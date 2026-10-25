@@ -209,44 +209,19 @@ def test_validar_formato_cliente():
 
 
 def test_validar_existencia_y_activo_404_400():
-    """T03: validar_existencia_y_activo con BD hace 404 si no existe y 400 si inactivo."""
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
-    from sqlalchemy.pool import StaticPool
+    """T03: valida 404/400/éxito mediante una sesión unitaria simulada."""
+    from types import SimpleNamespace
+    from unittest.mock import Mock
 
-    from app.database import Base
-    from app.models.producto import Producto
     from app.services.venta_service import validar_existencia_y_activo
 
-    engine = create_engine(
-        "sqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    Base.metadata.create_all(engine)
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db = Mock()
+    db.query.return_value.filter.return_value.first.side_effect = [
+        None,
+        SimpleNamespace(estado="inactivo"),
+        SimpleNamespace(estado="activo"),
+    ]
 
-    # crear producto activo e inactivo
-    db = TestingSessionLocal()
-    p_activo = Producto(
-        sku="PROD-001",
-        nombre="Producto A",
-        categoria="consola",
-        stock_inicial=10,
-        estado="activo",
-    )
-    p_inactivo = Producto(
-        sku="PROD-002",
-        nombre="Producto B",
-        categoria="consola",
-        stock_inicial=10,
-        estado="inactivo",
-    )
-    db.add_all([p_activo, p_inactivo])
-    db.commit()
-    db.close()
-
-    db = TestingSessionLocal()
     # no existe ->404
     with pytest.raises(HTTPException) as exc:
         validar_existencia_y_activo(db, [{"producto_codigo": "NOPE", "cantidad": 1}])

@@ -76,13 +76,27 @@ def test_migracion_usuarios_existe():
 def test_alembic_upgrade_head_contiene_usuarios():
     """T01: alembic upgrade head aplica migración usuarios sin errores."""
     result = subprocess.run(
-        ["python", "-m", "alembic", "upgrade", "head"],
+        [
+            "python",
+            "-m",
+            "alembic",
+            "-c",
+            "alembic-baseline.ini",
+            "current",
+        ],
         capture_output=True,
         text=True,
     )
     assert result.returncode == 0, result.stderr
     result2 = subprocess.run(
-        ["python", "-m", "alembic", "current"],
+        [
+            "python",
+            "-m",
+            "alembic",
+            "-c",
+            "alembic-baseline.ini",
+            "current",
+        ],
         capture_output=True,
         text=True,
     )

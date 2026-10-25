@@ -8,11 +8,7 @@ from app.config import get_settings
 
 _settings = get_settings()
 SQLALCHEMY_DATABASE_URL = _settings.database_url
-_connect_args = (
-    {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
-)
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=_connect_args)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

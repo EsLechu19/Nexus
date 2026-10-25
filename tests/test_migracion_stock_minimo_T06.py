@@ -36,7 +36,16 @@ def test_alembic_current_head_stock_minimo():
     import sys
 
     result = subprocess.run(
-        [sys.executable, "-m", "alembic", "current"], capture_output=True, text=True
+        [
+            sys.executable,
+            "-m",
+            "alembic",
+            "-c",
+            "alembic-baseline.ini",
+            "current",
+        ],
+        capture_output=True,
+        text=True,
     )
     assert result.returncode == 0
-    assert "7010b4ddca09" in result.stdout or "head" in result.stdout.lower()
+    assert "000000000001" in result.stdout

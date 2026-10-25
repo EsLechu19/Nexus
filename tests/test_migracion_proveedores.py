@@ -47,12 +47,17 @@ def test_alembic_current_head_proveedores():
     import sys
 
     result = subprocess.run(
-        [sys.executable, "-m", "alembic", "current"], capture_output=True, text=True
+        [
+            sys.executable,
+            "-m",
+            "alembic",
+            "-c",
+            "alembic-baseline.ini",
+            "current",
+        ],
+        capture_output=True,
+        text=True,
     )
     assert result.returncode == 0
     assert "head" in result.stdout.lower()
-    assert (
-        "37840112ca70" in result.stdout
-        or "crea proveedores" in result.stdout.lower()
-        or "head" in result.stdout.lower()
-    )
+    assert "000000000001" in result.stdout

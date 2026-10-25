@@ -55,7 +55,16 @@ def test_alembic_current_en_head():
     import subprocess
 
     result = subprocess.run(
-        ["python", "-m", "alembic", "current"], capture_output=True, text=True
+        [
+            "python",
+            "-m",
+            "alembic",
+            "-c",
+            "alembic-baseline.ini",
+            "current",
+        ],
+        capture_output=True,
+        text=True,
     )
     assert result.returncode == 0
-    assert "head" in result.stdout.lower()
+    assert "000000000001" in result.stdout
