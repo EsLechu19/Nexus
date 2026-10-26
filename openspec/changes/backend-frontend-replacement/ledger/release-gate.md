@@ -9,8 +9,9 @@ and reviewed.
 - Baseline revision: `BL-20261021-01`
 - Reviewed by: `SDD apply evidence review`
 - Review date (UTC): `2026-10-21`
-- Last-known-good rollback target: **BLOCKED — no deployable version/tag was
-  supplied in the local evidence**
+- Last-known-good rollback target: `28f8318` — last validated application
+  commit with green backend/frontend CI; rollback route is redeploying this
+  commit and stopping the incompatible slice.
 - Gate status: `BLOCKED` — baseline evidence is populated, but release approval
   requires the named blockers below.
 
@@ -62,8 +63,8 @@ Before implementation or cutover of a bounded slice, confirm:
 
 Blocking items:
 
-1. **Deployment owner:** name a deployable last-known-good application version
-   and application-level route-back mechanism before any replacement slice.
+1. **Deployment owner:** ✅ resolved — `28f8318` is the named last-known-good
+   application commit; redeploying it is the application-level route-back.
 2. **Data/deployment owner:** provide production table counts/checksums and
    approve PostgreSQL migration/concurrency rehearsal scope before persistence
    cutover.
